@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Text Classification Demo</title>
+</head>
+<body >
+  <h2>News Classification</h2>
+
+  
+
+  <label>Body</label><br>
+  <textarea id="body" rows="5" cols="60"></textarea><br><br>
+
+  <button onclick="predict()">Predict</button>
+  <button onclick="example()">ตัวอย่างข้อความ</button>
+  <button onclick="errorExample()">ตัวอย่าง Error</button>
+
+  <hr>
+
+  <div id="result"></div>
+
+<script>
+async function predict() {
+  const body = document.getElementById("body").value;
+
+  const res = await fetch("http://127.0.0.1:8000/predict", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ body})
+  });
+
+  const data = await res.json();
+
+  document.getElementById("result").innerHTML = `
+    <p><b>Label:</b> ${data.label}</p>
+    <p><b>Confidence:</b> ${data.confidence}</p>
+    <p><b>Latency:</b> ${data.latency_ms} ms</p>
+    <p><b>Model Version:</b> ${data.model_version}</p>
+  `;
+}
+
+function example() {
+  document.getElementById("headline").value = "Excellent product";
+  document.getElementById("body").value = "This product is worth the price and very useful.";
+}
+
+function errorExample() {
+  document.getElementById("headline").value = "";
+  document.getElementById("body").value = "";
+}
+</script>
+</body>
+</html>
