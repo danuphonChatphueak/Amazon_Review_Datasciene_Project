@@ -1,20 +1,22 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="utf-8">
   <title>Text Classification Demo</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="./style.css">
 </head>
+
 <body>
   <div class="container">
     <div class="header">
       <div class="logo" aria-hidden="true">
-        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="1" y="4" width="16" height="12" rx="2" fill="#ff9900" opacity="0.12"/>
-          <path d="M3 6h13l-1.2 6.4A2 2 0 0 1 12.9 14H7.1a2 2 0 0 1-1.9-1.6L3 6z" fill="#ff9900"/>
-          <circle cx="8" cy="18" r="1.2" fill="#374151"/>
-          <circle cx="14" cy="18" r="1.2" fill="#374151"/>
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none">
+          <rect x="1" y="4" width="16" height="12" rx="2" fill="#ff9900" opacity="0.12" />
+          <path d="M3 6h13l-1.2 6.4A2 2 0 0 1 12.9 14H7.1a2 2 0 0 1-1.9-1.6L3 6z" fill="#ff9900" />
+          <circle cx="8" cy="18" r="1.2" fill="#374151" />
+          <circle cx="14" cy="18" r="1.2" fill="#374151" />
         </svg>
       </div>
       <h2>Amazon Review Text Classification</h2>
@@ -25,46 +27,104 @@
       <textarea id="body" rows="5" placeholder="Enter your review text here..."></textarea>
     </div>
 
-    <div class="button-group">
-      <button id="predictBtn" onclick="predict()">Predict</button>
-      <button id="exampleBtn" onclick="example()">ตัวอย่างข้อความ</button>
-      <button id="errorBtn" onclick="errorExample()">ตัวอย่าง Error</button>
+    <!-- 🔒 Fixed models -->
+    <div class="form-group">
+      <label>Models (Fixed)</label>
+      <p style="margin:6px 0 0; opacity:.85;">
+        • Model A: <b>TF-IDF + Logistic Regression (v1)</b><br>
+        • Model B: <b>TF-IDF + LinearSVC (v2)</b>
+      </p>
     </div>
 
+    <div class="button-group">
+      <button class="btn-primary" onclick="predictCompare()">Predict (Compare)</button>
+      <button class="btn-secondary" onclick="example()">ตัวอย่างข้อความ</button>
+      <button class="btn-error" onclick="errorExample()">ตัวอย่าง Error</button>
+    </div>
     <div class="divider"></div>
 
-    <div id="result"></div>
+    <!-- Results -->
+    <div id="result" class="show" style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;"></div>
+
+    <div id="errorBox" style="margin-top:12px; color:#b91c1c;"></div>
   </div>
 
-<script>
-async function predict() {
-  const body = document.getElementById("body").value;
+  <script>
+    // ✅ local
+    const API_BASE = "http://127.0.0.1:8000";
+    // ถ้า deploy → เปลี่ยนเป็น onrender
+    // const API_BASE = "https://amazon-review-api.onrender.com";
 
-  const res = await fetch("http://127.0.0.1:8000/predict", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ body})
-  });
+    function safe(v) {
+      return (v === null || v === undefined) ? "-" : v;
+    }
 
-  const data = await res.json();
-  const resultDiv = document.getElementById("result");
+    function renderCard(title, data) {
+      return `
+      <div style="border:1px solid rgba(0,0,0,.08); border-radius:16px; padding:14px;">
+        <h3>${title}</h3>
+        <p><b>Label:</b> ${safe(data.label)}</p>
+        <p><b>Confidence:</b> ${safe(data.confidence)}</p>
+        <p><b>Latency:</b> ${safe(data.latency_ms)} ms</p>
+        <p><b>Model Version:</b> ${safe(data.model_version)}</p>
+      </div>
+    `;
+    }
 
-  resultDiv.innerHTML = `
-    <p><b>Label:</b> ${data.label}</p>
-    <p><b>Confidence:</b> ${data.confidence}</p>
-    <p><b>Latency:</b> ${data.latency_ms} ms</p>
-    <p><b>Model Version:</b> ${data.model_version}</p>
-  `;
-  resultDiv.classList.add("show");
-}
+    async function callPredict(modelVersion, text) {
+      const url = `${API_BASE}/predict?model=${modelVersion}`;
 
-function example() {
-  document.getElementById("body").value = "This product is worth the price and very useful.";
-}
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ body: text })
+      });
 
-function errorExample() {
-  document.getElementById("body").value = "bad";
-}
-</script>
+      if (!res.ok) {
+        const msg = await res.text();
+        throw new Error(msg);
+      }
+      return res.json();
+    }
+
+    async function predictCompare() {
+      const errorBox = document.getElementById("errorBox");
+      errorBox.innerText = "";
+
+      const text = document.getElementById("body").value.trim();
+      if (!text) {
+        errorBox.innerText = "กรุณาใส่ข้อความก่อนกด Predict";
+        return;
+      }
+
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = "กำลังทำนาย...";
+
+      try {
+        const [logreg, svc] = await Promise.all([
+          callPredict("v1", text),
+          callPredict("v2", text)
+        ]);
+
+        resultDiv.innerHTML =
+          renderCard("Logistic Regression", logreg) +
+          renderCard("LinearSVC ", svc);
+
+      } catch (err) {
+        resultDiv.innerHTML = "";
+        errorBox.innerText = "เกิดข้อผิดพลาด: " + err.message;
+      }
+    }
+
+    function example() {
+      document.getElementById("body").value =
+        "This product is worth the price and very useful.";
+    }
+
+    function errorExample() {
+      document.getElementById("body").value = "bad";
+    }
+  </script>
 </body>
+
 </html>

@@ -176,3 +176,31 @@ button:active {
 #result p:last-child {
   margin-bottom: 0;
 }
+.btn-primary {
+  background: linear-gradient(135deg, #16c550);
+  color: white;
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #088331);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #0ea5e9);
+  color: white;
+}
+.btn-secondary:hover {
+  background: linear-gradient(135deg, #3b82f6);
+}
+
+.btn-error {
+  background: linear-gradient(135deg, #cf1b1b);
+  color: #ffffff;
+}
+.btn-error:hover {
+  background: linear-gradient(135deg, #a01111);
+}
+#result.show {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
