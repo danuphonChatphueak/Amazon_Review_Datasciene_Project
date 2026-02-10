@@ -3,22 +3,38 @@
 <head>
   <meta charset="utf-8">
   <title>Text Classification Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
-<body >
-  <h2>News Classification</h2>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo" aria-hidden="true">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1" y="4" width="16" height="12" rx="2" fill="#ff9900" opacity="0.12"/>
+          <path d="M3 6h13l-1.2 6.4A2 2 0 0 1 12.9 14H7.1a2 2 0 0 1-1.9-1.6L3 6z" fill="#ff9900"/>
+          <circle cx="8" cy="18" r="1.2" fill="#374151"/>
+          <circle cx="14" cy="18" r="1.2" fill="#374151"/>
+        </svg>
+      </div>
+      <h2>Amazon Review Text Classification</h2>
+    </div>
 
-  
+    <div class="form-group">
+      <label for="body">Review Text</label>
+      <textarea id="body" rows="5" placeholder="Enter your review text here..."></textarea>
+    </div>
 
-  <label>Body</label><br>
-  <textarea id="body" rows="5" cols="60"></textarea><br><br>
+    <div class="button-group">
+      <button id="predictBtn" onclick="predict()">Predict</button>
+      <button id="exampleBtn" onclick="example()">ตัวอย่างข้อความ</button>
+      <button id="errorBtn" onclick="errorExample()">ตัวอย่าง Error</button>
+    </div>
 
-  <button onclick="predict()">Predict</button>
-  <button onclick="example()">ตัวอย่างข้อความ</button>
-  <button onclick="errorExample()">ตัวอย่าง Error</button>
+    <div class="divider"></div>
 
-  <hr>
-
-  <div id="result"></div>
+    <div id="result"></div>
+  </div>
 
 <script>
 async function predict() {
@@ -31,23 +47,23 @@ async function predict() {
   });
 
   const data = await res.json();
+  const resultDiv = document.getElementById("result");
 
-  document.getElementById("result").innerHTML = `
+  resultDiv.innerHTML = `
     <p><b>Label:</b> ${data.label}</p>
     <p><b>Confidence:</b> ${data.confidence}</p>
     <p><b>Latency:</b> ${data.latency_ms} ms</p>
     <p><b>Model Version:</b> ${data.model_version}</p>
   `;
+  resultDiv.classList.add("show");
 }
 
 function example() {
-  document.getElementById("headline").value = "Excellent product";
   document.getElementById("body").value = "This product is worth the price and very useful.";
 }
 
 function errorExample() {
-  document.getElementById("headline").value = "";
-  document.getElementById("body").value = "";
+  document.getElementById("body").value = "bad";
 }
 </script>
 </body>

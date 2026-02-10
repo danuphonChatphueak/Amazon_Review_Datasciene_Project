@@ -6,7 +6,7 @@ import time
 import numpy as np
 app = FastAPI()
 # ================= Load model =================
-MODEL_PATH = "model/tfidf_logreg_model.joblib"
+MODEL_PATH = "Amazon_Review_Model.joblib"
 model = joblib.load(MODEL_PATH)
 
 MODEL_VERSION = "1.0.0"
