@@ -66,7 +66,6 @@
         <p><b>Label:</b> ${safe(data.label)}</p>
         <p><b>Confidence:</b> ${safe(data.confidence)}</p>
         <p><b>Latency:</b> ${safe(data.latency_ms)} ms</p>
-        <p><b>Model Version:</b> ${safe(data.model_version)}</p>
       </div>
     `;
     }
@@ -102,8 +101,8 @@
 
       try {
         const [logreg, svc] = await Promise.all([
-          callPredict("v1", text),
-          callPredict("v1", text)
+          callPredict("v1.0", text),
+          callPredict("v1.2", text)
         ]);
 
         resultDiv.innerHTML =
