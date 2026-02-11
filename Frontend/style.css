@@ -138,7 +138,7 @@ button:active {
 }
 
 #result {
-  background: linear-gradient(135deg, #f0f9ff 0%, #fce7f3 100%);
+  background: linear-gradient(135deg, #ffffff);
   padding: 25px;
   border-radius: 10px;
   border-left: 4px solid #a78bfa;
