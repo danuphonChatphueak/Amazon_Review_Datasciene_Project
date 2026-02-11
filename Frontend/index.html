@@ -101,8 +101,8 @@
 
       try {
         const [logreg, svc] = await Promise.all([
-          callPredict("v1.0", text),
-          callPredict("v1.2", text)
+          callPredict("v1", text),
+          callPredict("v2", text)
         ]);
 
         resultDiv.innerHTML =
