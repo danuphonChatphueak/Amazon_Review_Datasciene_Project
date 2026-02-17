@@ -39,4 +39,5 @@ root directory:
 Build Command :
 
 Publish Directory : Frontend
+
 กด deploy
